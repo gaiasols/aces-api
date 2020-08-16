@@ -1,2 +1,2 @@
 # aces-api
-ACES API
+Gaia ACES API
