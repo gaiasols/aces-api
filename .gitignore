@@ -1,6 +1,8 @@
 # Dev notes
 /notes
 /dev-notes
+/.vscode
+.java-version
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
