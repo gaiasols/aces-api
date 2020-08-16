@@ -16,6 +16,7 @@ class LicenseBase(BaseModel):
     type: str = None
     licenseName: str = None
     contactName: str = None
+    contactUsername: str = None
     contactEmail: EmailStr = None
     publishedBy: str = None
     publishDate: str = None
@@ -45,6 +46,7 @@ class LicenseCreate(LicenseBase, WithSlug):
     type: str
     licenseName: str
     contactName: str
+    contactUsername: str
     contactEmail: EmailStr
     publishedBy: str
     publishDate: str
@@ -61,7 +63,7 @@ class LicenseCreate(LicenseBase, WithSlug):
 
 # Properties to receive on update (by admin)
 class LicenseUpdate(LicenseBase):
-    disabled: bool = False
+    disabled: bool = None
 
 
 # Properties to receive on update (by license)

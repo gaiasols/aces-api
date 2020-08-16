@@ -20,8 +20,8 @@ async def read_licenses(limit: int=20, skip: int=0):
 
 @router.post("", response_model=License)
 async def create_license(data: LicenseCreate):
-    '''Required: `slug`, `type`, `licenseName`, `contactName`, `contactEmail`,
-    `publishedBy`, `publishDate(yyyy-mm-dd)`.
+    '''
+    `publishDate`: `(yyyy-mm-dd)`.
     '''
     logging.info(">>> " + __name__ + ":create")
     license = await crud.find_one(data.slug)

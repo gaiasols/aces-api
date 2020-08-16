@@ -33,6 +33,10 @@ class WithSlug(BaseModel):
 
 class WithLicense(BaseModel):
     license: str
+    @validator("license")
+    @classmethod
+    def validate_id(cls, v: str):
+        return v.strip().lower()
 
 
 class WithClient(BaseModel):
