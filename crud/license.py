@@ -3,6 +3,7 @@ from pymongo import ReturnDocument
 
 from core.config import (
     DOCTYPE_LICENSE as DOCUMENT_TYPE,
+    DOCTYPE_USER,
     ERROR_MONGODB_UPDATE,
     ERROR_MONGODB_DELETE,
 )
@@ -12,6 +13,8 @@ from models.license import (
     License,
     LicenseCreate,
 )
+from models.user import UserCreate
+from crud.user import insert_license_owner
 from crud.utils import (
     delete_empty_keys,
     fields_in_create,
@@ -44,6 +47,15 @@ async def insert_one(data: LicenseCreate):
         rs = await collection.insert_one(props)
         if rs.inserted_id:
             license = await collection.find_one({"_id": rs.inserted_id})
+            # Create license owner
+            owner = UserCreate(
+                license = data.slug,
+                name = data.contactName,
+                username = data.contactUsername,
+                email = data.contactEmail,
+                password = "SECRET"
+            )
+            user = await insert_license_owner(owner)
             return license
     except Exception as e:
         logging.info(e)
@@ -60,6 +72,7 @@ async def find_one(slug: str):
 async def update_one(slug: str, data: BaseModel):
     logging.info(">>> " + __name__ + ":update_one")
     props = delete_empty_keys(data)
+    logging.info(props)
     if len(props) == 0:
         raise_bad_request("No data supplied")
     collection = get_collection(DOCUMENT_TYPE)
