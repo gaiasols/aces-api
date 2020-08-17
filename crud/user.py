@@ -127,7 +127,7 @@ async def update_one(term: str, data: BaseModel):
     props = delete_empty_keys(data)
     logging.info( props )
     if len(props) == 0:
-        raise_bad_request("No data supplied")
+        raise_bad_request("No data supplied.")
 
     collection = get_collection(DOCUMENT_TYPE)
     seek = seek_by_term(term)
