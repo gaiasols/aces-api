@@ -31,7 +31,6 @@ class ClientWithLicense(ClientBase, WithLicense):
     pass
 
 
-
 # Properties to receive on update
 class ClientUpdate(ClientBase):
     pass
