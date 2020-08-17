@@ -95,6 +95,15 @@ async def find_one(term: str):
     return await collection.find_one(seek)
 
 
+async def find_license_user(license: str, term: str):
+    logging.info(">>> " + __name__ + ":find_one")
+    collection = get_collection(DOCUMENT_TYPE)
+    seek = seek_by_term(term)
+    seek["license"] = license
+    return await collection.find_one(seek)
+
+
+
 async def find_license_owner(license: str):
     logging.info(">>> " + __name__ + ":find_one")
     collection = get_collection(DOCUMENT_TYPE)
@@ -103,7 +112,7 @@ async def find_license_owner(license: str):
     )
 
 
-async def find_one_by_email_or_username(email: str, username: str):
+async def find_by_email_or_username(email: str, username: str):
     logging.info(">>> " + __name__ + ":find_one")
     collection = get_collection(DOCUMENT_TYPE)
     return await collection.find_one({"$or": [
@@ -131,14 +140,11 @@ async def update_one(term: str, data: BaseModel):
     return rs if rs else raise_server_error(ERROR_MONGODB_UPDATE)
 
 
-async def delete(license: str, search: str):
+async def delete(term: str):
     logging.info(">>> " + __name__ + ":delete")
 
     collection = get_collection(DOCUMENT_TYPE)
-    seek = seek_by_term(search)
-
-    # Do not delete license owner
-    seek["licenseOwner"] = False
+    seek = seek_by_term(term)
 
     found = await collection.find_one_and_delete(
         seek,
