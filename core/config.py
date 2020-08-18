@@ -48,8 +48,9 @@ DOCTYPE_ADMIN    = "admin"
 DOCTYPE_LICENSE  = "licenses"
 DOCTYPE_MODULE   = "modules"
 DOCTYPE_USER     = "users"
-DOCTYPE_PROJECT  = "projects"
 DOCTYPE_CLIENT   = "clients"
+DOCTYPE_CONTRACT = "contracts"
+DOCTYPE_PROJECT  = "projects"
 DOCTYPE_PERSONA  = "personas"
 DOCTYPE_BATCH    = "batches"
 
@@ -63,8 +64,9 @@ PROJECT_MAX_YEAR = 2030
 PROJECT_MEMBER_ROLES = "admin client expert visitor"
 PROJECT_MEMBER_TYPES = "internal external"
 
-BEHAVIORAL_MODULE_TYPES = "AIME CSI GPQ GMATE PROL PSI SJT INTERVIEW DISCUSSION PRESENTATION"
-BEHAVIORAL_MODULE_METHODS = "selftest facetime"
+BEHAVIORAL_MODULE_TYPES = "aime csi gpq gmate prol psi sjt interview discussion presentation"
+# BEHAVIORAL_SIMULATION_TYPES = "interview discussion presentation"
+BEHAVIORAL_MODULE_METHODS = "selftest simulation"
 
 ADMIN_ROLES = ""
 USER_CAPABILITIES = "creator admin client expert"
