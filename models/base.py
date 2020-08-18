@@ -43,5 +43,9 @@ class WithClient(BaseModel):
     client: str
 
 
+class WithContract(BaseModel):
+    contract: str
+
+
 class WithProject(BaseModel):
     project: str
