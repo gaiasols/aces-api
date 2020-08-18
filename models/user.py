@@ -74,5 +74,6 @@ class User(UserBase, WithLicense, DBModel):
     pass
 
 
-class UserInDB(UserBase, WithLicense):
+# class UserInDB(UserBase, WithLicense):
+class UserInDB(User):
     hashed_password: str

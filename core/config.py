@@ -21,6 +21,11 @@ SMTP_USER            = os.getenv("SMTP_USER")
 SMTP_PASSWORD        = os.getenv("SMTP_PASSWORD")
 EMAILS_FROM_EMAIL    = os.getenv("EMAILS_FROM_EMAIL")
 
+# Token
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = 7 * 24 * 60  # 7 days
+
 #
 LICENSE_CODE_MIN_LENGTH=3
 LICENSE_CODE_MAX_LENGTH=10
@@ -70,3 +75,4 @@ BEHAVIORAL_MODULE_METHODS = "selftest simulation"
 
 ADMIN_ROLES = ""
 USER_CAPABILITIES = "creator admin client expert"
+
