@@ -10,7 +10,7 @@ from core.config import (
     ERROR_MONGODB_UPDATE,
 )
 from db.mongo import get_collection
-from models.module import Module, ModuleCreate, ModuleUpdate, ModuleSimpleUpdate
+from models.module import Module, ModuleCreate, ModuleUpdate, ModuleInfo
 from crud.utils import (
     delete_empty_keys,
     fields_in_create,
@@ -27,6 +27,23 @@ async def find_many():
     cursor = collection.find({})
     async for row in cursor:
         modules.append(row)
+    return modules
+
+
+async def find_modules(ids: List[str]) -> List[Module]:
+    filter = []
+    for id in ids:
+        if ObjectId.is_valid(id):
+            filter.append({"_id": ObjectId(id)})
+    if len(filter) == 0:
+        return []
+
+    collection = get_collection(DOCTYPE_MODULE)
+    modules: List[Module] = []
+    cursor = collection.find({"$or": filter})
+    async for row in cursor:
+        module = Module(**row)
+        modules.append(module.dict())
     return modules
 
 

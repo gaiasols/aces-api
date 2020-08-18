@@ -32,7 +32,7 @@ class ContractCreate(ContractBase):
     title: str
 
 
-# Properties to be saved
+# Properties to persist in database
 class ContractInDB(ContractCreate, WithLicense, WithClient):
     pass
 
@@ -43,7 +43,6 @@ class ContractUpdate(ContractBase):
     pass
 
 
-# Properties to receive on contract creation
-# class Contract(ContractCreate, WithClient, WithLicense, DBModel):
+# Properties to return
 class Contract(ContractInDB, DBModel):
     pass

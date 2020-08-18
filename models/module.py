@@ -46,7 +46,7 @@ class ModuleUpdate(ModuleBase):
 
 
 # Properties to receive on update by licensee
-class ModuleSimpleUpdate(BaseModel):
+class ModuleInfo(BaseModel):
     title: str = None
     description: str = None
 

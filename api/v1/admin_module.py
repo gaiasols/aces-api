@@ -6,7 +6,7 @@ from fastapi import APIRouter
 
 from crud import module as crud
 from models.base import Msg
-from models.module import Module, ModuleCreate, ModuleUpdate, ModuleSimpleUpdate
+from models.module import Module, ModuleCreate, ModuleUpdate
 from utils.utils import raise_bad_request, raise_not_found
 
 

@@ -6,7 +6,6 @@ from fastapi import APIRouter
 
 from crud import contract as crud
 from crud.client import find_one as find_client
-from crud.license import find_one as find_license
 from models.base import Msg
 from models.contract import Contract, ContractCreate, ContractUpdate
 from utils.utils import raise_bad_request, raise_not_found
