@@ -19,7 +19,8 @@ router.include_router(admin_module, prefix="/admin/modules", tags=["🅰️ Modu
 router.include_router(admin_user, prefix="/admin/users", tags=["🅰️ Users"])
 
 router.include_router(license_routes, prefix="/licenses", tags=["✅ Tenant"])
-router.include_router(user_routes, prefix="/users/{license}", tags=["✅ Tenant Users"])
+# router.include_router(user_routes, prefix="/users/{license}", tags=["✅ Tenant Users"])
+router.include_router(user_routes, prefix="/users", tags=["✅ Tenant Users"])
 router.include_router(client_routes, prefix="/clients/{license}", tags=["✅ Tenant Clients"])
 router.include_router(contract_routes, prefix="/contracts/{license}", tags=["✅ Tenant Contracts"])
 # router.include_router(project_routes, prefix="/projects/{license}", tags=["✅ Tenant Projects"])
