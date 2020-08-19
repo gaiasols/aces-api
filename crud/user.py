@@ -14,6 +14,7 @@ from models.user import (
     User,
     UserCreate,
     UserInDB,
+    UserSave,
     UserUpdate,
 )
 # from crud.license import is_license_valid
@@ -58,7 +59,7 @@ async def insert_one(data: UserCreate, license_owner: bool):
     logging.info(">>> " + __name__ + ":insert_one")
     collection = get_collection(DOCUMENT_TYPE)
     hashed_password = get_password_hash(data.password)
-    model = UserInDB(**data.dict(), hashed_password=hashed_password)
+    model = UserSave(**data.dict(), hashed_password=hashed_password)
     props = fields_in_create(model)
     try:
         rs = await collection.insert_one(props)

@@ -56,6 +56,11 @@ class UserCreate(WithLicense):
         return v
 
 
+# Properties to persist in database
+class UserSave(UserBase, WithLicense):
+    hashed_password: str
+
+
 # Properties to receive on user update by self
 class UserUpdateSelf(BaseModel):
     name: str = None
