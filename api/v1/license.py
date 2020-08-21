@@ -1,29 +1,30 @@
 import logging
 from typing import Any, List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from api.v1.login import get_current_active_user
 from crud import license as crud
 from models.license import License, LicenseUpdateSelf
+from models.user import User
 from utils.utils import raise_bad_request, raise_not_found
 
 router = APIRouter()
 
 
-@router.get("/{slug}", response_model=License)
-async def read_license_info(slug: str):
-    logging.info(">>> " + __name__ + ":find")
-    license = await crud.find_one(slug)
+@router.get("", response_model=License)
+async def read_info(current_user: User=Depends(get_current_active_user)):
+    logging.info(">>> " + __name__ + ":read_info")
+    license = await crud.find_one(current_user.license)
     if not license:
         raise_not_found("License not found.")
     return license
 
 
-
-@router.put("/{slug}", response_model=License)
-async def update_license_info(slug: str, data: LicenseUpdateSelf):
-    logging.info(">>> " + __name__ + ":update")
-    license = await crud.find_one(slug)
-    if not license:
-        raise_not_found("License not found.")
-    return await crud.update_one(slug, data)
+@router.put("", response_model=License)
+async def update_info(data: LicenseUpdateSelf, current_user: User=Depends(get_current_active_user)):
+    logging.info(">>> " + __name__ + ":update_info")
+    # license = await crud.find_one(current_user.license)
+    # if not license:
+    #     raise_not_found("License not found.")
+    return await crud.update_one(current_user.license, data)
