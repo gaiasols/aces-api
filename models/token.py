@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import Any, Optional
 from pydantic import BaseModel
 
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+    user: Any
 
 
 class TokenData(BaseModel):
