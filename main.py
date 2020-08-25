@@ -29,8 +29,8 @@ from typing import List
 daftar: List[str] = []
 
 '''
-# @app.get("/", summary="Test API")
-# async def test_api():
-#     return {"test": "API"}
+@app.get("/", summary="Test API")
+async def test_api():
+    return {"branch": "dev"}
 
 app.include_router(router, prefix="/v1")
