@@ -52,8 +52,13 @@ class ProjectUpdate(ProjectBase):
     pass
 
 
-# Properties to persist in database
+# Properties to receive as simple project info
+class ProjectInfo(ProjectBase, WithLicense, WithContract, WithClient, DBModel):
+    # modules: int = 0
+    pass
 
+
+# Properties to persist in database
 class ProjectInDB(ProjectCreate, WithLicense, WithContract, WithClient):
     modules: List[Module] = []
 

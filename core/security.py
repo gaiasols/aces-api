@@ -7,7 +7,6 @@ from passlib.context import CryptContext
 from core.config import ALGORITHM, SECRET_KEY
 
 
-# ALGORITHM = "HS256"
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
