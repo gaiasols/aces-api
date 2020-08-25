@@ -1,76 +1,33 @@
 import logging
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Security, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel, ValidationError
 
+from api.v1.deps import get_current_user, get_current_active_user, get_current_license_owner
 from core.config import (ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, DOCTYPE_USER,
                          SECRET_KEY)
 from core.security import (create_access_token, get_password_hash,
                            verify_password)
-from crud.user import find_one as find_user
+from crud.user import get_by_email, authenticate_user
 from db.mongo import get_collection
+from models.base import Msg
 from models.token import Token, TokenData
 from models.user import User, UserInDB
+from utils import emailutils
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/token")
+
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/token")
 
 
 router = APIRouter()
 
 
-async def get_user(username: str):
-    user = await find_user(username)
-    if user:
-        return UserInDB(**user)
-
-
-async def authenticate_user(username: str, password: str):
-    user = await get_user(username)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials.",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
-    user = await get_user(username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
-
-
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user.")
-    return current_user
-
-
-async def get_current_license_owner(current_user: User = Depends(get_current_user)):
-    if not current_user.licenseOwner:
-        raise HTTPException(status_code=400, detail="Not enough permission.")
-    return current_user
-
-
-@router.post("/token", response_model=Token)
+@router.post("/access-token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -94,7 +51,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         "licenseOwner": user.licenseOwner,
         "verified": user.verified,
         "disabled": user.disabled,
-        "userRoles": user.userRoles,
+        "roles": user.roles,
         "token": access_token,
     }
     return {"access_token": access_token, "token_type": "bearer", "user": user_data}
@@ -103,3 +60,30 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @router.get("/users/me", response_model=User)
 async def read_user_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+
+@router.post("/test")
+async def send_new_account_email(email_to: str, username: str, password: str):
+    logging.info("send_new_account_email")
+    emailutils.send_new_account_email(email_to, username, password)
+
+# def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
+
+@router.post("/password-recovery/{email}", response_model=Msg)
+async def recover_password(email: str) -> Any:
+    """
+    Password Recovery
+    """
+    user = await get_by_email(email=email)
+    logging.info(user)
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this username does not exist in the system.",
+        )
+    password_reset_token = emailutils.generate_password_reset_token(email=email)
+    emailutils.send_reset_password_email(
+        email_to=user["email"], email=email, token=password_reset_token
+    )
+    return {"msg": "Password recovery email sent"}

@@ -4,7 +4,7 @@ from typing import List
 from bson.objectid import ObjectId
 from fastapi import APIRouter, Depends
 
-from api.v1.login import get_current_active_user
+from api.v1.deps import get_current_active_user
 from crud import contract as crud
 from crud.client import find_one as find_client
 from models.base import Msg

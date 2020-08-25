@@ -15,9 +15,7 @@ class ProjectBase(BaseModel):
     startDate: str = None
     endDate: str = None
     status: str = None
-    contact: str = None     # Nama PIC klien
-    managedBy: str = None   # Nama
-    # modules: List[Module] = []
+    contact: str = None
 
     @validator("startDate")
     @classmethod
@@ -43,25 +41,29 @@ class ProjectBase(BaseModel):
 # Properties to receive on project creation
 class ProjectCreate(ProjectBase):
     title: str
-    managedBy: str
+    # admin: str
+    # Will be created first with creator as admin
 
 
-
-# Properties to receive on update
-class ProjectUpdate(ProjectBase):
-    pass
-
-
-# Properties to receive as simple project info
-class ProjectInfo(ProjectBase, WithLicense, WithContract, WithClient, DBModel):
-    # modules: int = 0
-    pass
+class ProjectRefs(BaseModel):
+    # license: str
+    client: str = None
+    contract: str = None
 
 
 # Properties to persist in database
-class ProjectInDB(ProjectCreate, WithLicense, WithContract, WithClient):
-    modules: List[Module] = []
+class ProjectInDB(ProjectBase, ProjectRefs, WithLicense):
+    admin: str
+    createdBy: str
+    pass
 
-# Properties to return
+
 class Project(ProjectInDB, DBModel):
     pass
+
+
+# Properties to receive on update
+class ProjectUpdate(ProjectBase, ProjectRefs):
+    admin: str = None
+    pass
+

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, validator
 
 from core.config import BEHAVIORAL_MODULE_TYPES, BEHAVIORAL_MODULE_METHODS
-from models.base import DBModel
+from models.base import DBModel, WithProject
 
 
 # Shared properties
@@ -54,3 +54,15 @@ class ModuleInfo(BaseModel):
 # Properties to return to client
 class Module(ModuleBase, DBModel):
     pass
+
+
+class ProjectModule(ModuleBase, WithProject, DBModel):
+    pass
+
+
+class ProjectModuleInput(BaseModel):
+    moduleId: str
+    projectId: str
+    title: str = None
+    description: str = None
+

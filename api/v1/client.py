@@ -3,7 +3,7 @@ from typing import Any, List
 
 from fastapi import APIRouter, Depends
 
-from api.v1.login import get_current_active_user
+from api.v1.deps import get_current_active_user
 from crud import client as crud
 from crud.license import find_one as find_license
 from models.base import Msg

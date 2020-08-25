@@ -7,7 +7,7 @@ from core.config import (
     ERROR_MONGODB_DELETE,
     ERROR_MONGODB_UPDATE,
 )
-from core.security import get_password_hash
+from core.security import get_password_hash, verify_password
 from db.mongo import get_collection
 from models.user import (
     BaseModel,
@@ -15,6 +15,7 @@ from models.user import (
     UserCreate,
     UserInDB,
     UserSave,
+    UserToSave,
     UserUpdate,
 )
 # from crud.license import is_license_valid
@@ -42,6 +43,21 @@ def seek_by_term(term: str):
     elif "@" in term and "." in term:
         return {"email": term}
     return {"username": term}
+
+
+async def get_user(username: str):
+    user = await find_one(username)
+    if user:
+        return UserInDB(**user)
+
+
+async def authenticate_user(username: str, password: str):
+    user = await get_user(username)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
 
 
 async def find_many(license:str, limit: int, skip: int):
@@ -75,9 +91,11 @@ async def insert_license_owner(data: UserCreate):
     logging.info(">>> " + __name__ + ":insert_one")
     collection = get_collection(DOCUMENT_TYPE)
     hashed_password = get_password_hash(data.password)
-    model = UserInDB(**data.dict(), hashed_password=hashed_password)
+    # model = UserInDB(**data.dict(), hashed_password=hashed_password)
+    model = UserToSave(**data.dict(), hashed_password=hashed_password)
     model.licenseOwner = True
-    model.userRoles.append("license-admin")
+    model.roles.append("license-admin")
+    model.roles.append("project-admin")
     props = fields_in_create(model)
     try:
         rs = await collection.insert_one(props)
@@ -120,6 +138,12 @@ async def find_by_email_or_username(email: str, username: str):
         {"email": email},
         {"username": username}
     ]})
+
+
+async def get_by_email(email: str):
+    logging.info(">>> " + __name__ + ":find_one")
+    collection = get_collection(DOCUMENT_TYPE)
+    return await collection.find_one({"email": email})
 
 
 async def update_one(term: str, data: BaseModel):
