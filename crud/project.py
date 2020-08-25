@@ -12,6 +12,7 @@ from core.config import (
 from db.mongo import get_collection
 from models.project import Project, ProjectCreate, ProjectInDB, ProjectUpdate
 from models.module import Module, ModuleInfo
+from models.user import User
 from crud.module import find_modules
 from crud.utils import (
     delete_empty_keys,
@@ -46,10 +47,23 @@ async def find_one(license: str, id: str):
     return await collection.find_one({"license": license,  "_id": ObjectId(id)})
 
 
-async def insert(license: str, client: str, contract: str, data: ProjectCreate):
+async def insert(
+    license: str,
+    creator: str,
+    data: ProjectCreate,
+    client: str = None,
+    contract: str = None
+):
     logging.info(">>> " + __name__ + ":insert")
     try:
-        project = ProjectInDB(**data.dict(), license=license, client=client, contract=contract)
+        project = ProjectInDB(
+            **data.dict(),
+            license=license,
+            client=client,
+            contract=contract,
+            admin=creator,
+            createdBy=creator
+        )
         logging.info(project)
         props = fields_in_create(project)
         collection = get_collection(DOCTYPE_PROJECT)
@@ -123,3 +137,9 @@ async def delete(license: str, id: str):
             return {"message": "Project has been deleted."}
     except Exception as e:
         raise_server_error(str(e))
+
+
+async def is_valid_project_admin(user: User, id: str) -> bool:
+    collection = get_collection(DOCTYPE_PROJECT)
+    project = await collection.find_one({"_id": ObjectId(id), "admin": user.username})
+    return True if project else False

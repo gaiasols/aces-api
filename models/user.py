@@ -21,7 +21,7 @@ class UserBase(BaseModel):
     disabled: bool = False
     gender: str = None
     phone: str = None
-    userRoles: List[str] = []
+    roles: List[str] = []
     @validator('username')
     def check_username(cls, v):
         v = v.strip().lower()
@@ -33,8 +33,8 @@ class UserBase(BaseModel):
         return v.strip().lower()
 
 
-# Properties to receive on create
-class UserCreate(WithLicense):
+# Properties to receive when license admin create user
+class UserInfo(BaseModel):
     name: str
     username: str
     email: EmailStr
@@ -56,6 +56,30 @@ class UserCreate(WithLicense):
         return v
 
 
+# Properties to receive on create
+class UserCreate(UserInfo, WithLicense):
+    pass
+    # name: str
+    # username: str
+    # email: EmailStr
+    # gender: str = None
+    # phone: str = None
+    # password: str
+    # @validator('username')
+    # def check_username(cls, v):
+    #     v = v.strip().lower()
+    #     if not (USERNAME_MIN_LENGTH <= len(v) <= USERNAME_MAX_LENGTH and v.isalnum()):
+    #         raise ValueError(USERNAME_ERROR_MESSAGE)
+    #     return v
+
+    # @validator('password')
+    # def check_password(cls, v):
+    #     v = v.strip()
+    #     if not (PASSWORD_MIN_LENGTH <= len(v) <= PASSWORD_MAX_LENGTH):
+    #         raise ValueError(PASSWORD_ERROR_MESSAGE)
+    #     return v
+
+
 # Properties to persist in database
 class UserSave(UserBase, WithLicense):
     hashed_password: str
@@ -72,7 +96,7 @@ class UserUpdateSelf(BaseModel):
 class UserUpdate(BaseModel):
     licenseOwner: bool = None
     disabled: bool = None
-    userRoles: List[str] = None
+    roles: List[str] = None
 
 
 class User(UserBase, WithLicense, DBModel):
@@ -81,4 +105,8 @@ class User(UserBase, WithLicense, DBModel):
 
 # class UserInDB(UserBase, WithLicense):
 class UserInDB(User):
+    hashed_password: str
+
+
+class UserToSave(UserBase, WithLicense):
     hashed_password: str

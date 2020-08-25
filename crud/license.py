@@ -6,6 +6,7 @@ from core.config import (
     DOCTYPE_USER,
     ERROR_MONGODB_UPDATE,
     ERROR_MONGODB_DELETE,
+    NEW_LICENSE_PASSWORD,
 )
 from db.mongo import get_collection
 from models.license import (
@@ -53,7 +54,7 @@ async def insert_one(data: LicenseCreate):
                 name = data.contactName,
                 username = data.contactUsername,
                 email = data.contactEmail,
-                password = "SECRET"
+                password = NEW_LICENSE_PASSWORD
             )
             user = await insert_license_owner(owner)
             return license
