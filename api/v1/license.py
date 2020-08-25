@@ -3,7 +3,7 @@ from typing import Any, List
 
 from fastapi import APIRouter, Depends
 
-from api.v1.login import get_current_active_user
+from api.v1.login import get_current_active_user, get_current_license_owner
 from crud import license as crud
 from models.license import License, LicenseUpdateSelf
 from models.user import User
@@ -13,18 +13,20 @@ router = APIRouter()
 
 
 @router.get("", response_model=License)
-async def read_info(current_user: User=Depends(get_current_active_user)):
+async def read_info(slug: str, current_user: User=Depends(get_current_active_user)):
     logging.info(">>> " + __name__ + ":read_info")
-    license = await crud.find_one(current_user.license)
+    slug = slug.strip().lower()
+    license = await crud.find_one(slug)
     if not license:
         raise_not_found("License not found.")
     return license
 
 
 @router.put("", response_model=License)
-async def update_info(data: LicenseUpdateSelf, current_user: User=Depends(get_current_active_user)):
+async def update_info(slug: str, data: LicenseUpdateSelf, current_user: User=Depends(get_current_license_owner)):
     logging.info(">>> " + __name__ + ":update_info")
+    slug = slug.strip().lower()
     # license = await crud.find_one(current_user.license)
     # if not license:
     #     raise_not_found("License not found.")
-    return await crud.update_one(current_user.license, data)
+    return await crud.update_one(slug, data)

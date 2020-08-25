@@ -2,21 +2,21 @@ import logging
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-from fastapi import Depends, APIRouter, HTTPException, Security, status
+from fastapi import APIRouter, Depends, HTTPException, Security, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel, ValidationError
 
-from core.config import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, DOCTYPE_USER, SECRET_KEY
-from core.security import create_access_token, get_password_hash, verify_password
+from core.config import (ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, DOCTYPE_USER,
+                         SECRET_KEY)
+from core.security import (create_access_token, get_password_hash,
+                           verify_password)
 from crud.user import find_one as find_user
 from db.mongo import get_collection
 from models.token import Token, TokenData
 from models.user import User, UserInDB
 
-# ALGORITHM = "HS256"
-# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/token")
 
 
@@ -60,7 +60,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=400, detail="Inactive user.")
+    return current_user
+
+
+async def get_current_license_owner(current_user: User = Depends(get_current_user)):
+    if not current_user.licenseOwner:
+        raise HTTPException(status_code=400, detail="Not enough permission.")
     return current_user
 
 
@@ -97,11 +103,3 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @router.get("/users/me", response_model=User)
 async def read_user_me(current_user: User = Depends(get_current_active_user)):
     return current_user
-
-
-from models.license import License
-from crud.license import find_one as find_license
-@router.get("/test-license", response_model=License)
-async def test_license(current_user: User = Depends(get_current_active_user)):
-    license = await find_license(current_user.license)
-    return license

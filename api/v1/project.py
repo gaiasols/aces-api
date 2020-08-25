@@ -10,7 +10,7 @@ from crud.contract import find_one as find_contract
 from crud.license import find_one as find_license
 from models.base import Msg
 from models.module import Module, ModuleInfo
-from models.project import Project, ProjectCreate, ProjectUpdate
+from models.project import Project, ProjectCreate, ProjectInfo, ProjectUpdate
 from models.user import User
 from utils.utils import raise_bad_request, raise_not_found
 from api.v1.login import get_current_active_user
@@ -20,7 +20,7 @@ router = APIRouter()
 
 # async def test_license(current_user: User = Depends(get_current_active_user)):
 
-@router.get("", response_model=List[Project])
+@router.get("", response_model=List[ProjectInfo])
 async def read_projects(limit: int=20, skip: int=0, current_user: User = Depends(get_current_active_user)):
     return await crud.find_many_by_license(current_user.license, limit, skip)
 
