@@ -8,6 +8,7 @@ from crud import license as crud
 from crud.project import find_one as find_project
 from models.license import License, LicenseUpdateSelf
 from models.user import User
+from models.project import Project
 from utils.utils import raise_bad_request, raise_not_found
 
 router = APIRouter()
