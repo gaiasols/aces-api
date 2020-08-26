@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 
 from api.v1.login import get_current_active_user
 from crud import license as crud
+from crud.project import find_one as find_project
 from models.license import License, LicenseUpdateSelf
 from models.user import User
 from utils.utils import raise_bad_request, raise_not_found
@@ -28,3 +29,8 @@ async def update_info(data: LicenseUpdateSelf, current_user: User=Depends(get_cu
     # if not license:
     #     raise_not_found("License not found.")
     return await crud.update_one(current_user.license, data)
+
+
+@router.get("/{slug}/projects/{id}", response_model=Project)
+async def get_license_project(slug: str, id: str):
+    return await find_project(license=slug, id=id)
