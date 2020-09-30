@@ -10,6 +10,7 @@ from utils.utils import is_date
 
 class ProjectModule(BaseModel):
     ref: str
+    slug: str
     type: str
     version: str
     method: str
