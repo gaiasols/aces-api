@@ -6,6 +6,7 @@ from models.base import DBModel, WithProject
 
 # Shared properties
 class ModuleBase(BaseModel):
+    slug: str = None
     type: str = None
     version: str = None
     method: str = None
@@ -13,6 +14,7 @@ class ModuleBase(BaseModel):
     title: str = None   # Marketing name
     description: str = None
     items: int = None
+    maxTime: int = None
     url: str = None
 
     @validator("type")
