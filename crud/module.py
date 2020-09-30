@@ -11,6 +11,7 @@ from core.config import (
 )
 from db.mongo import get_collection
 from models.module import Module, ModuleCreate, ModuleUpdate, ModuleInfo
+from models.project import ProjectModule
 from crud.utils import (
     delete_empty_keys,
     fields_in_create,
@@ -27,6 +28,21 @@ async def find_many():
     cursor = collection.find({})
     async for row in cursor:
         modules.append(row)
+    return modules
+
+
+async def find_project_modules():
+    logging.info(">>> " + __name__ + ":find_project_modules")
+    collection = get_collection(DOCTYPE_MODULE)
+    modules: List[ProjectModule] = []
+    cursor = collection.find({})
+    async for row in cursor:
+        # modules.append(row)
+        idref = str(row["_id"])
+        logging.info(row)
+        project_module = ProjectModule(**row, ref=idref)
+        logging.info(project_module)
+        modules.append(project_module)
     return modules
 
 

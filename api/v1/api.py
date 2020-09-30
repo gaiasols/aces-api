@@ -13,6 +13,9 @@ from api.v1.project import router as project_routes
 from api.v1.public import router as public_routes
 from api.v1.projectmodule import router as module_routes
 from api.v1.projectmember import router as member_routes
+from api.v1.persona import router as persona_routes
+
+from api.v1.ev.gpq import router as GPQ
 
 router = APIRouter()
 
@@ -20,8 +23,8 @@ router.include_router(login, tags=["✅ Login"])
 # router.include_router(public_routes, prefix="/licenses/{license}", tags=["✅ Public"])
 
 router.include_router(admin_license, prefix="/admin/licenses", tags=["🅰️ Licenses"])
-router.include_router(admin_module, prefix="/admin/modules", tags=["🅰️ Modules"])
 router.include_router(admin_user, prefix="/admin/users", tags=["🅰️ Users"])
+router.include_router(admin_module, prefix="/admin/modules", tags=["🅰️ Modules"])
 
 router.include_router(license_routes, prefix="/licenses/{slug}", tags=["✅ Tenant"])
 router.include_router(user_routes, prefix="/licenses/{slug}/users", tags=["✅ Tenant Users"])
@@ -31,3 +34,5 @@ router.include_router(project_routes, prefix="/licenses/{slug}/projects", tags=[
 
 router.include_router(module_routes, prefix="/projects/{project}/modules", tags=["✅ Projects Modules"])
 router.include_router(member_routes, prefix="/projects/{project}/members", tags=["✅ Projects Members"])
+router.include_router(persona_routes, prefix="/projects/{project}/personas", tags=["✅ Projects Personas"])
+router.include_router(GPQ, prefix="/projects/{project}/gpq", tags=["✅ GPQ Records"])

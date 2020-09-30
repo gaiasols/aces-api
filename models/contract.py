@@ -23,8 +23,13 @@ class ContractBase(BaseModel):
     status: str = None
     type: str = None
     contact: Contact = None
-    managedBy: str = None
+    admin: str = None
     pricing: List[PackagePricing] = []
+
+
+class ContractRefs(BaseModel):
+    license: str
+    clientId: str
 
 
 # Properties to receive on contract creation
@@ -33,7 +38,7 @@ class ContractCreate(ContractBase):
 
 
 # Properties to persist in database
-class ContractInDB(ContractCreate, WithLicense, WithClient):
+class ContractInDB(ContractCreate, WithClient, WithLicense):
     pass
 
 

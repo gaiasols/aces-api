@@ -21,6 +21,7 @@ async def read_licenses(limit: int=20, skip: int=0):
 @router.post("", response_model=License)
 async def create_license(data: LicenseCreate):
     '''
+    Membuat license dan sekaligus user admin (owner).
     `publishDate`: `(yyyy-mm-dd)`.
     '''
     logging.info(">>> " + __name__ + ":create")

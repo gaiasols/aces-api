@@ -25,16 +25,30 @@ from crud.utils import (
 def seek_by_search(project: str, search: str):
     search = search.strip().lower()
     if ObjectId.is_valid(search):
-        return {"_id": ObjectId(search), "project": project}
+        return {"_id": ObjectId(search), "projectId": project}
     elif "@" in search and "." in search:
-        return {"email": search, "project": project}
-    return {"username": search, "project": project}
+        return {"email": search, "projectId": project}
+    return {"username": search, "projectId": project}
+
+
+async def find_by_email_or_username(project: str, email: str, username: str):
+    logging.info(">>> " + __name__ + ":find_by_email_or_username")
+    collection = get_collection(DOCTYPE_PROJECT_MEMBER)
+    return await collection.find_one(
+        {
+            "projectId": project,
+            "$or": [
+                {"email": email},
+                {"username": username}
+            ]
+        }
+    )
 
 
 async def find_many(project: str):
     collection = get_collection(DOCTYPE_PROJECT_MEMBER)
     members: List[Member] = []
-    cursor = collection.find({ 'project': project })
+    cursor = collection.find({ 'projectId': project })
     async for row in cursor:
         members.append(row)
     return members
@@ -43,7 +57,10 @@ async def find_many(project: str):
 async def find_one(project: str, search: str):
     collection = get_collection(DOCTYPE_PROJECT_MEMBER)
     seek = seek_by_search(project, search)
-    return await collection.find_one(seek)
+    member = await collection.find_one(seek)
+    if member:
+        return member
+    raise_not_found()
 
 
 async def delete_one(project: str, search: str):
@@ -64,7 +81,7 @@ async def insert(project: str, data: MemberCreate):
     hashed_password = get_password_hash(data.password)
     model = MemberInDB(
         **data.dict(),
-        project=project,
+        projectId=project,
         hashed_password=hashed_password
     )
     props = fields_in_create(model)

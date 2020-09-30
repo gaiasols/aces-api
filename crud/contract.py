@@ -46,7 +46,7 @@ async def find_one(slug: str, id: str):
 
 async def insert(slug: str, client: str, data: ContractCreate):
     try:
-        contract = ContractInDB(**data.dict(), license=slug, client=client)
+        contract = ContractInDB(**data.dict(), license=slug, clientId=client)
         props = fields_in_create(contract)
         collection = get_collection(DOCTYPE_CONTRACT)
         rs = await collection.insert_one(props)

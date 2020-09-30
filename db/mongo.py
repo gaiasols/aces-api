@@ -13,6 +13,7 @@ from core.config import (
     DOCTYPE_USER,
     DOCTYPE_MODULE,
     DOCTYPE_PROJECT,
+    DOCTYPE_PROJECT_MEMBER,
     DOCTYPE_PERSONA,
 )
 
@@ -50,10 +51,11 @@ async def connect():
 
     # await check_admin_indexes(db.client)
     # await check_module_indexes(db.client)
-    # await check_license_indexes(db.client)
+    await check_license_indexes(db.client)
     # await check_user_indexes(db.client)
     # await check_client_indexes(db.client)
     # await check_project_indexes(db.client)
+    await check_project_member_indexes(db.client)
     # await check_persona_indexes(db.client)
 
 
@@ -111,8 +113,41 @@ async def check_license_indexes(db: AsyncIOMotorClient):
         )
 
 
-# Users
+# Users: username and email are unique across ACES
 async def check_user_indexes(db: AsyncIOMotorClient):
+    logging.info(">>> " + __name__ + ":check_user_indexes")
+    logging.info(">>> Cheking user indexes...")
+    collection = db[MONGODB_NAME][DOCTYPE_USER]
+    info = await collection.index_information()
+
+    # One email my be used in different license
+    index_name = "user_license_email_index"
+    if index_name in info:
+        logging.info(">>> Found " + index_name)
+    else:
+        logging.info(">>> Index not found, creating one: " + index_name)
+        await collection.create_index(
+            [("license", 1), ("email", 1)],
+            unique=True,
+            name=index_name
+        )
+
+    # No identical usernames with the same license
+    index_name = "user_license_username_index"
+    if index_name in info:
+        logging.info(">>> Found " + index_name)
+    else:
+        logging.info(">>> Index not found, creating one: " + index_name)
+        await collection.create_index(
+            [("license", 1), ("username", 1)],
+            unique=True,
+            name=index_name
+        )
+
+
+
+# Users
+async def __check_user_indexes(db: AsyncIOMotorClient):
     logging.info(">>> " + __name__ + ":check_user_indexes")
     logging.info(">>> Cheking user indexes...")
     collection = db[MONGODB_NAME][DOCTYPE_USER]
@@ -178,6 +213,36 @@ async def check_project_indexes(db: AsyncIOMotorClient):
         await collection.create_index(
             # [("slug", 1), ("members.username", 1)],
             [ ("slug", 1), ("members.username", 1) ],
+            unique=True,
+            name=index_name
+        )
+
+
+# Project member
+async def check_project_member_indexes(db: AsyncIOMotorClient):
+    logging.info(">>> " + __name__ + ":check_project_member_indexes")
+    logging.info(">>> Cheking project_members indexes...")
+    collection = db[MONGODB_NAME][DOCTYPE_PROJECT_MEMBER]
+    info = await collection.index_information()
+
+    index_name = "project_member_username_index"
+    if index_name in info:
+        logging.info(">>> Found " + index_name)
+    else:
+        logging.info(">>> Index not found, creating one: " + index_name)
+        await collection.create_index(
+            [ ("project", 1), ("username", 1) ],
+            unique=True,
+            name=index_name
+        )
+
+    index_name = "project_member_email_index"
+    if index_name in info:
+        logging.info(">>> Found " + index_name)
+    else:
+        logging.info(">>> Index not found, creating one: " + index_name)
+        await collection.create_index(
+            [ ("project", 1), ("email", 1) ],
             unique=True,
             name=index_name
         )

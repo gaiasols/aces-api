@@ -13,6 +13,7 @@ from models.base import DBModel, WithLicense
 
 # Shared properties
 class UserBase(BaseModel):
+    license: str
     name: str = None
     username: str = None    # lowercase, isalnum
     email: EmailStr = None
@@ -33,20 +34,42 @@ class UserBase(BaseModel):
         return v.strip().lower()
 
 
-# Properties to receive when license admin create user
-class UserInfo(BaseModel):
+# Properties to return
+class User(UserBase, DBModel):
+    pass
+
+
+# Properties to persist in database
+class UserSave(UserBase):
+    hashed_password: str
+
+
+# Properties to persist in database
+class UserInDB(User):
+    hashed_password: str
+
+
+# Properties to receive on create
+class UserCreate(BaseModel):
+    license: str
     name: str
     username: str
     email: EmailStr
     gender: str = None
     phone: str = None
     password: str
+    roles: List[str] = []
+
     @validator('username')
     def check_username(cls, v):
         v = v.strip().lower()
         if not (USERNAME_MIN_LENGTH <= len(v) <= USERNAME_MAX_LENGTH and v.isalnum()):
             raise ValueError(USERNAME_ERROR_MESSAGE)
         return v
+
+    @validator('email')
+    def check_email(cls, v):
+        return v.strip().lower()
 
     @validator('password')
     def check_password(cls, v):
@@ -56,42 +79,6 @@ class UserInfo(BaseModel):
         return v
 
 
-# Properties to receive on create
-class UserCreate(UserInfo, WithLicense):
-    pass
-    # name: str
-    # username: str
-    # email: EmailStr
-    # gender: str = None
-    # phone: str = None
-    # password: str
-    # @validator('username')
-    # def check_username(cls, v):
-    #     v = v.strip().lower()
-    #     if not (USERNAME_MIN_LENGTH <= len(v) <= USERNAME_MAX_LENGTH and v.isalnum()):
-    #         raise ValueError(USERNAME_ERROR_MESSAGE)
-    #     return v
-
-    # @validator('password')
-    # def check_password(cls, v):
-    #     v = v.strip()
-    #     if not (PASSWORD_MIN_LENGTH <= len(v) <= PASSWORD_MAX_LENGTH):
-    #         raise ValueError(PASSWORD_ERROR_MESSAGE)
-    #     return v
-
-
-# Properties to persist in database
-class UserSave(UserBase, WithLicense):
-    hashed_password: str
-
-
-# Properties to receive on user update by self
-class UserUpdateSelf(BaseModel):
-    name: str = None
-    gender: str = None
-    phone: str = None
-
-
 # Properties to receive on user update by license
 class UserUpdate(BaseModel):
     licenseOwner: bool = None
@@ -99,14 +86,8 @@ class UserUpdate(BaseModel):
     roles: List[str] = None
 
 
-class User(UserBase, WithLicense, DBModel):
-    pass
-
-
-# class UserInDB(UserBase, WithLicense):
-class UserInDB(User):
-    hashed_password: str
-
-
-class UserToSave(UserBase, WithLicense):
-    hashed_password: str
+# Properties to receive on user update by self
+class UserUpdateSelf(BaseModel):
+    name: str = None
+    gender: str = None
+    phone: str = None

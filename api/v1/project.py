@@ -64,6 +64,8 @@ async def create_project(
             raise_bad_request("Contract reference not found.")
 
     creator = current_user.username
+    if not data.admin:
+        data.admin = creator
     return await crud.insert(slug, creator, data, client, contract)
 
 

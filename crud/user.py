@@ -13,10 +13,10 @@ from models.user import (
     BaseModel,
     User,
     UserCreate,
-    UserInDB,
     UserSave,
-    UserToSave,
+    UserInDB,
     UserUpdate,
+    UserUpdateSelf,
 )
 # from crud.license import is_license_valid
 from crud.utils import (
@@ -46,12 +46,15 @@ def seek_by_term(term: str):
 
 
 async def get_user(username: str):
+    logging.info(">>> " + __name__ + ":get_user")
     user = await find_one(username)
+    logging.info(user)
     if user:
         return UserInDB(**user)
 
 
 async def authenticate_user(username: str, password: str):
+    logging.info(">>> " + __name__ + ":authenticate_user")
     user = await get_user(username)
     if not user:
         return False
@@ -88,11 +91,11 @@ async def insert_one(data: UserCreate, license_owner: bool):
 
 
 async def insert_license_owner(data: UserCreate):
-    logging.info(">>> " + __name__ + ":insert_one")
+    logging.info(">>> " + __name__ + ":insert_license_owner")
     collection = get_collection(DOCUMENT_TYPE)
     hashed_password = get_password_hash(data.password)
     # model = UserInDB(**data.dict(), hashed_password=hashed_password)
-    model = UserToSave(**data.dict(), hashed_password=hashed_password)
+    model = UserSave(**data.dict(), hashed_password=hashed_password)
     model.licenseOwner = True
     model.roles.append("license-admin")
     model.roles.append("project-admin")

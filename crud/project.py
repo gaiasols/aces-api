@@ -13,7 +13,7 @@ from db.mongo import get_collection
 from models.project import Project, ProjectCreate, ProjectInDB, ProjectUpdate
 from models.module import Module, ModuleInfo
 from models.user import User
-from crud.module import find_modules
+from crud.module import find_modules, find_project_modules
 from crud.utils import (
     delete_empty_keys,
     fields_in_create,
@@ -55,15 +55,22 @@ async def insert(
     contract: str = None
 ):
     logging.info(">>> " + __name__ + ":insert")
+    logging.info(data)
+
+    # Project otomatis memiliki seluruh modul yang tersedia
+    aces_modules = await find_project_modules()
+    logging.info(aces_modules)
     try:
         project = ProjectInDB(
             **data.dict(),
             license=license,
             client=client,
             contract=contract,
-            admin=creator,
-            createdBy=creator
+            # admin=creator,
+            createdBy=creator,
+            modules=aces_modules,
         )
+        logging.info("======")
         logging.info(project)
         props = fields_in_create(project)
         collection = get_collection(DOCTYPE_PROJECT)
@@ -143,3 +150,17 @@ async def is_valid_project_admin(user: User, id: str) -> bool:
     collection = get_collection(DOCTYPE_PROJECT)
     project = await collection.find_one({"_id": ObjectId(id), "admin": user.username})
     return True if project else False
+
+
+# ProjectModule
+
+
+async def get_modules(id: str):
+    collection = get_collection(DOCTYPE_PROJECT)
+    rs = await collection.find_one(
+        {"_id": ObjectId(id)},
+        {"_id": False, "modules": True}
+    )
+    logging.info(rs)
+    return rs["modules"]
+
