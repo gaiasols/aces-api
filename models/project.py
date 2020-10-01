@@ -69,7 +69,19 @@ class ProjectRefs(BaseModel):
 class ProjectBase(ProjectInfo, ProjectRefs):
     createdBy: str = None
     modules: List[ProjectModule] = []
+    # Tests group:
+    groups: List[str] = []
     settings: List[str] = []
+
+
+# Sub-Project Grouping
+# ====================
+#
+# grup1: "gpq-1.0 psi-v1.0 interview-1.0"
+# grup2: "aime-v1.0 gpq-1.0 psi-v1.0 interview-1.0"
+#
+# group = {name: "A", tests: "gpq mate abc", "mutable": False}
+
 
 
 # Properties to persist in database

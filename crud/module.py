@@ -63,9 +63,18 @@ async def find_modules(ids: List[str]) -> List[Module]:
     return modules
 
 
+def seek_by_term(term: str):
+    if ObjectId.is_valid(term):
+        return {"_id": ObjectId(term)}
+    return {"slug": term}
+
+
 async def find_one(id: str):
     collection = get_collection(DOCTYPE_MODULE)
-    return await collection.find_one({"_id": ObjectId(id)})
+    seek = seek_by_term(id)
+    logging.info(seek)
+    # return await collection.find_one({"_id": ObjectId(id)})
+    return await collection.find_one(seek)
 
 
 async def insert(data: ModuleCreate):

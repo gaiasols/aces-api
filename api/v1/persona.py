@@ -1,7 +1,7 @@
 import logging
 from typing import Any, List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends
 
 from api.v1.deps import get_current_active_user, get_current_project_admin
 # from crud import projectmodule as crud
@@ -71,6 +71,10 @@ async def set_tests(
 ):
     logging.info(">>> " + __name__ + ":set_tests")
 
+    persona = await crud.find_one(project, search)
+    if not persona:
+        raise_not_found("Could not find persona.")
+
     if len(tests) == 0:
         raise_bad_request("Tests cannot be empty")
     return await crud.set_tests(project, search, tests)
@@ -98,3 +102,12 @@ async def delete_persona(
 ):
     logging.info(">>> " + __name__ + ":delete_persona")
     return await crud.delete_one(project, search)
+
+
+@router.post("/create-test-group", response_model=Any)
+async def create_test_group(
+    project: str,
+    tests: List[str] = Body(...),
+    personas: List[str] = Body(...)
+) -> Any:
+    return None

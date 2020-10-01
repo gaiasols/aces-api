@@ -63,7 +63,8 @@ async def find_by_email_or_username(project: str, email: str, username: str):
 async def find_many(project: str):
     collection = get_collection(DOCTYPE_PERSONA)
     personas: List[Persona] = []
-    cursor = collection.find({ 'projectId': project })
+    # cursor = collection.find({"projectId": project, "tests": {"$size": 0}})
+    cursor = collection.find({"projectId": project})
     async for row in cursor:
         personas.append(row)
     return personas
@@ -153,7 +154,7 @@ async def set_tests(project: str, search: str, tests: List[str]):
             seek,
             {"$set": {
                 "tests": tests,
-                "nextTest": tests[0],
+                # "nextTest": tests[0],
                 "updatedAt": datetime.utcnow()
             }},
             return_document=ReturnDocument.AFTER
@@ -173,7 +174,7 @@ async def set_simulations(project: str, search: str, sims: List[str]):
             seek,
             {"$set": {
                 "simulations": sims,
-                "nextSim": sims[0],
+                # "nextSim": sims[0],
                 "updatedAt": datetime.utcnow()
             }},
             return_document=ReturnDocument.AFTER

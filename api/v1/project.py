@@ -26,7 +26,8 @@ async def read_projects(
     limit: int=20,
     skip: int=0,
     current_user: User = Depends(get_current_active_user)
-) -> Any:
+) -> List[Project]:
+    '''Read projects without modules sub documents.'''
     slug = slug.strip().lower()
     return await crud.find_many_by_license(slug, limit, skip)
 

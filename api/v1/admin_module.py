@@ -27,8 +27,8 @@ async def create_module(data: ModuleCreate):
 async def find_module(id: str):
     id = id.strip().lower()
 
-    if not ObjectId.is_valid(id):
-        raise_bad_request("Not valid module ID.")
+    # if not ObjectId.is_valid(id):
+        # raise_bad_request("Not valid module ID.")
 
     module = await crud.find_one(id)
     if not module:

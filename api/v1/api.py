@@ -32,7 +32,7 @@ router.include_router(client_routes, prefix="/licenses/{slug}/clients", tags=["�
 router.include_router(contract_routes, prefix="/licenses/{slug}/contracts", tags=["✅ Tenant Contracts"])
 router.include_router(project_routes, prefix="/licenses/{slug}/projects", tags=["✅ Tenant Projects"])
 
-router.include_router(module_routes, prefix="/projects/{project}/modules", tags=["✅ Projects Modules"])
-router.include_router(member_routes, prefix="/projects/{project}/members", tags=["✅ Projects Members"])
-router.include_router(persona_routes, prefix="/projects/{project}/personas", tags=["✅ Projects Personas"])
+router.include_router(module_routes, prefix="/projects/{project}/modules", tags=["✅ Project Modules"])
+router.include_router(member_routes, prefix="/projects/{project}/members", tags=["✅ Project Members"])
+router.include_router(persona_routes, prefix="/projects/{project}/personas", tags=["✅ Project Personas"])
 router.include_router(GPQ, prefix="/projects/{project}/gpq", tags=["✅ GPQ Records"])

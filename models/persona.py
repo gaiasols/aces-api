@@ -54,14 +54,16 @@ class PersonaInfo(BaseModel):
 
 class WithTest(BaseModel):
     tests: List[str] = []       # gpq-1.0, mate-1.1, etc
-    testStatus: str = "idle"    # idle, test-name, finished/cancelled
+    testsPerformed: int = 0
+    # testStatus: str = "idle"    # idle, test-name, finished/cancelled
     currentTest: str = None     # gpq or None
-    nextTest: str = None        # Defaulted to first test
+    # nextTest: str = None        # Defaulted to first test
     #
     simulations: List[str] = []
-    simStatus: str = "idle"
+    simsPerformed: int = 0
+    # simStatus: str = "idle"
     currentSim: str = None
-    nextSim: str = None
+    # nextSim: str = None
 
 
 class PersonaUpdate(PersonaInfo):
@@ -86,9 +88,3 @@ class Persona(WithTest, PersonaInfo, PersonaBase, WithProject, WithLicense, DBMo
 
 class PersonaInDB(WithTest, PersonaInfo, PersonaBase, WithProject, WithLicense):
     hashed_password: str
-
-
-def temp_test():
-    myTests = ['GPQ', 'GMATE', 'SJT']
-    testsPerformed = 1  # test yang sudah selesai
-    testTobeTaken = myTests[testsPerformed]

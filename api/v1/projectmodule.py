@@ -68,3 +68,11 @@ async def enable_module(
 ):
     logging.info(">>> " + __name__ + ":enable_module")
     return await crud.enable(project, id, False)
+
+
+@router.post("/create-group", response_model=Any)
+async def create_group(
+    project: str,
+    group: List[str] = Body(...)
+) -> Any:
+    return {}

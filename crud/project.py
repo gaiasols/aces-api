@@ -36,7 +36,8 @@ async def find_many(limit: int, skip: int):
 async def find_many_by_license(license: str, limit: int, skip: int):
     collection = get_collection(DOCTYPE_PROJECT)
     projects: List[Project] = []
-    cursor = collection.find({"license": license}, limit=limit, skip=skip)
+    cursor = collection.find({"license": license}, {"modules": False}, limit=limit, skip=skip)
+    # cursor = collection.find({"license": license}, limit=limit, skip=skip)
     async for row in cursor:
         projects.append(row)
     return projects
