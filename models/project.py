@@ -29,6 +29,7 @@ class ProjectModuleUpdate(BaseModel):
 
 # Shared properties
 class ProjectInfo(BaseModel):
+    path: str
     title: str
     description: str = None
     startDate: str = None
