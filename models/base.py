@@ -40,12 +40,12 @@ class WithLicense(BaseModel):
 
 
 class WithClient(BaseModel):
-    client: str
+    clientId: str
 
 
 class WithContract(BaseModel):
-    contract: str
+    contractId: str
 
 
 class WithProject(BaseModel):
-    project: str
+    projectId: str

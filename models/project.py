@@ -8,14 +8,35 @@ from models.module import Module
 from utils.utils import is_date
 
 
-# Shared properties
-class ProjectBase(BaseModel):
+class ProjectModule(BaseModel):
+    ref: str
+    slug: str
+    type: str
+    version: str
+    method: str
+    name: str
+    title: str = None   # Marketing name
+    description: str = None
+    items: int
+    url: str = None
+    enabled: bool = False
+
+
+class ProjectModuleUpdate(BaseModel):
     title: str = None
+    description: str = None
+
+
+# Shared properties
+class ProjectInfo(BaseModel):
+    path: str = None
+    title: str
     description: str = None
     startDate: str = None
     endDate: str = None
     status: str = None
     contact: str = None
+    admin: str = None
 
     @validator("startDate")
     @classmethod
@@ -38,32 +59,57 @@ class ProjectBase(BaseModel):
         return v
 
 
-# Properties to receive on project creation
-class ProjectCreate(ProjectBase):
-    title: str
-    # admin: str
-    # Will be created first with creator as admin
-
-
 class ProjectRefs(BaseModel):
-    # license: str
-    client: str = None
-    contract: str = None
+    license: str
+    clientId: str = None
+    contractId: str = None
+
+
+
+# Shared properties
+class ProjectBase(ProjectInfo, ProjectRefs):
+    createdBy: str = None
+    modules: List[ProjectModule] = []
+    # Tests group:
+    groups: List[str] = []
+    settings: List[str] = []
+
+
+# Sub-Project Grouping
+# ====================
+#
+# grup1: "gpq-1.0 psi-v1.0 interview-1.0"
+# grup2: "aime-v1.0 gpq-1.0 psi-v1.0 interview-1.0"
+#
+# group = {name: "A", tests: "gpq mate abc", "mutable": False}
+
 
 
 # Properties to persist in database
-class ProjectInDB(ProjectBase, ProjectRefs, WithLicense):
+class ProjectInDB(ProjectBase):
     admin: str
     createdBy: str
     pass
 
 
-class Project(ProjectInDB, DBModel):
+class Project(ProjectBase, DBModel):
+    pass
+
+
+# Properties to receive on project creation
+class ProjectCreate(ProjectInfo):
+    # title: str
+    # description: str = None
+    # startDate: str = None
+    # endDate: str = None
+    # status: str = None
+    # contact: str = None
+    # admin: str = None
     pass
 
 
 # Properties to receive on update
-class ProjectUpdate(ProjectBase, ProjectRefs):
-    admin: str = None
-    pass
+class ProjectUpdate(ProjectInfo):
+    path: str = None
+    title: str = None
 

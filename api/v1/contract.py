@@ -55,6 +55,9 @@ async def find_contract(slug: str, id: str, current_user: User = Depends(get_cur
 
 @router.put("/{id}", response_model=Contract)
 async def update_contract(slug: str, id: str, data: ContractUpdate, current_user: User = Depends(get_current_active_user)):
+    '''
+    Pricing harus update whole array.
+    '''
     slug = slug.strip().lower()
     id = id.strip().lower()
 

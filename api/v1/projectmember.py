@@ -30,9 +30,12 @@ async def add_member(
     data: MemberCreate,
     current_user: User = Depends(get_current_project_admin)
 ):
-    '''
-    Required role: project-admin
-    '''
+    logging.info(">>> " + __name__ + ":add_member")
+    member = await crud.find_by_email_or_username(project, data.email, data.username)
+    logging.info(member)
+    if member:
+        raise_bad_request("Username or email is already registered in the system.")
+
     return await crud.insert(project, data)
 
 

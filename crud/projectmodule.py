@@ -1,17 +1,17 @@
 import logging
+from datetime import datetime
 from typing import List
 
 from bson.objectid import ObjectId
 from pymongo import ReturnDocument
 
 from core.config import (
-    DOCTYPE_MODULE,
-    DOCTYPE_PROJECT_MODULE,
+    DOCTYPE_PROJECT,
     ERROR_MONGODB_DELETE,
     ERROR_MONGODB_UPDATE,
 )
 from db.mongo import get_collection
-from models.module import Module, ModuleInfo, ProjectModule, ProjectModuleInput
+from models.project import ProjectModule, ProjectModuleUpdate
 from crud import module as crudmodule
 from crud.utils import (
     delete_empty_keys,
@@ -23,76 +23,72 @@ from crud.utils import (
 )
 
 
-async def find_many(project: str):
-    collection = get_collection(DOCTYPE_PROJECT_MODULE)
-    modules: List[Module] = []
-    cursor = collection.find({ 'project': project })
-    async for row in cursor:
-        modules.append(row)
-    return modules
+async def read_modules(project: str):
+    collection = get_collection(DOCTYPE_PROJECT)
+    rs = await collection.find_one(
+        {"_id": ObjectId(project)},
+        {"_id": False, "modules": True}
+    )
+    logging.info(rs)
+    return rs["modules"]
 
 
-async def find_one(project: str, id: str):
-    collection = get_collection(DOCTYPE_PROJECT_MODULE)
-    return await collection.find_one({"_id": ObjectId(id), "project": project})
+async def read_module(project: str, id: str):
+    collection = get_collection(DOCTYPE_PROJECT)
+    rs = await collection.find_one(
+        {"_id": ObjectId(project)},
+        {"_id": False, "modules": {"$elemMatch": {"ref": id}}}
+    )
+    logging.info(rs)
+    if rs and rs["modules"] and len(rs["modules"]) > 0:
+        return rs["modules"][0]
+    raise_not_found()
 
 
-async def update_one(project: str, id: str, data: ModuleInfo):
-    try:
-        props = delete_empty_keys(data)
-        collection = get_collection(DOCTYPE_PROJECT_MODULE)
-        module = await collection.find_one_and_update(
-            {"_id": ObjectId(id), "project": project},
-            {"$set": fields_in_update(props)},
-            return_document=ReturnDocument.AFTER
-        )
-        if module:
-            return module
-    except Exception as e:
-        raise_server_error(str(e))
+async def update_one(project: str, id: str, data: ProjectModuleUpdate):
+    logging.info(">>> " + __name__ + ":update_one")
+
+    props = {"updatedAt": datetime.utcnow()}
+    if data.title:
+        props["modules.$.title"] = data.title
+    if data.description:
+        props["modules.$.description"] = data.description
+
+    collection = get_collection(DOCTYPE_PROJECT)
+    rs = await collection.find_one_and_update(
+        {"_id": ObjectId(project), "modules": {"$elemMatch": {"ref": id}}},
+        {"$set": props},
+        {"_id": False, "modules": {"$elemMatch": {"ref": id}}},
+        return_document=ReturnDocument.AFTER
+    )
+
+    if rs == None:
+        raise_not_found()
+
+    if rs and rs["modules"] and len(rs["modules"]) > 0:
+        return rs["modules"][0]
+
+    raise_server_error()
 
 
-async def delete_one(project: str, id: str):
-    try:
-        collection = get_collection(DOCTYPE_PROJECT_MODULE)
-        module = await collection.find_one_and_delete(
-            {"_id": ObjectId(id), "project": project},
-            {"_id": True}
-        )
-        if module:
-            return {"message": "Module has been deleted."}
-    except Exception as e:
-        raise_server_error(str(e))
+async def enable(project: str, id: str, enable: bool):
+    logging.info(">>> " + __name__ + ":enable")
 
+    collection = get_collection(DOCTYPE_PROJECT)
+    rs = await collection.find_one_and_update(
+        {"_id": ObjectId(project), "modules": {"$elemMatch": {"ref": id}}},
+        {"$set": {
+            "modules.$.enabled": enable,
+            "updatedAt": datetime.utcnow()
+        }},
+        {"_id": False, "modules": {"$elemMatch": {"ref": id}}},
+        return_document=ReturnDocument.AFTER
+    )
 
-async def insert(project: str, id: str):
-    ref = await crudmodule.find_one(id)
-    if not ref:
-        raise_server_error("Could not find referenced module.")
+    if rs == None:
+        raise_not_found()
 
-    # Manual spread
-    models = {
-        # '_id': ObjectId(id),
-        'ref': id,
-        'project': project,
-        'type': ref['type'],
-        'version': ref['version'],
-        'method': ref['method'],
-        'name': ref['name'],
-        'title': ref['title'],
-        'description': ref['description'],
-        'items': ref['items'],
-        'url': ref['url'],
-    }
-    logging.info(models)
-    props = fields_in_create(models)
-    logging.info(props)
-    try:
-        # props = fields_in_create(data)
-        collection = get_collection(DOCTYPE_PROJECT_MODULE)
-        rs = await collection.insert_one(props)
-        if rs.inserted_id:
-            return await collection.find_one({"_id": rs.inserted_id})
-    except Exception as e:
-        raise_server_error(str(e))
-    return None
+    if rs and rs["modules"] and len(rs["modules"]) > 0:
+        return rs["modules"][0]
+
+    raise_server_error()

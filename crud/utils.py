@@ -1,4 +1,5 @@
 import orjson
+import random
 from bson.objectid import ObjectId
 from datetime import datetime
 from typing import Any, Dict
@@ -26,6 +27,16 @@ def default_cast(obj):
     if isinstance(obj, ObjectId):
         return str(obj)
     raise TypeError
+
+
+def create_fpwd(username: str):
+    # First 3 chars
+    seed1 = username[:3]
+    # Last 4 chars
+    seed2 = str(ObjectId())[20:]
+    # Randomise
+    seed2 = ''.join(random.sample(seed2, len(seed2)))
+    return seed1 + seed2
 
 
 def serialize_mongo_result(doc):

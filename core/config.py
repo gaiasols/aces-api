@@ -73,6 +73,8 @@ DOCTYPE_PROJECT  = "projects"
 DOCTYPE_PERSONA  = "personas"
 DOCTYPE_BATCH    = "batches"
 
+DOCTYPE_EV_GPQ  = "ev_GPQ"
+
 ORG_SYMBOL_LENGTH = 6
 
 LICENSE_TYPES = "personal corporate"

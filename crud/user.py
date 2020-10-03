@@ -13,13 +13,14 @@ from models.user import (
     BaseModel,
     User,
     UserCreate,
-    UserInDB,
     UserSave,
-    UserToSave,
+    UserInDB,
     UserUpdate,
+    UserUpdateSelf,
 )
 # from crud.license import is_license_valid
 from crud.utils import (
+    create_fpwd,
     delete_empty_keys,
     fields_in_create,
     fields_in_update,
@@ -46,12 +47,15 @@ def seek_by_term(term: str):
 
 
 async def get_user(username: str):
+    logging.info(">>> " + __name__ + ":get_user")
     user = await find_one(username)
+    logging.info(user)
     if user:
         return UserInDB(**user)
 
 
 async def authenticate_user(username: str, password: str):
+    logging.info(">>> " + __name__ + ":authenticate_user")
     user = await get_user(username)
     if not user:
         return False
@@ -71,12 +75,14 @@ async def find_many(license:str, limit: int, skip: int):
     return rs
 
 
-async def insert_one(data: UserCreate, license_owner: bool):
+async def insert_one(license:str, data: UserCreate, license_owner: bool):
     logging.info(">>> " + __name__ + ":insert_one")
     collection = get_collection(DOCUMENT_TYPE)
-    hashed_password = get_password_hash(data.password)
-    model = UserSave(**data.dict(), hashed_password=hashed_password)
+    fpwd = create_fpwd(data.username)
+    hashed_password = get_password_hash(fpwd)
+    model = UserSave(**data.dict(), license=license, hashed_password=hashed_password)
     props = fields_in_create(model)
+    props["xfpwd"] = fpwd[::-1]
     try:
         rs = await collection.insert_one(props)
         if rs.inserted_id:
@@ -87,16 +93,19 @@ async def insert_one(data: UserCreate, license_owner: bool):
         raise_server_error(str(e))
 
 
-async def insert_license_owner(data: UserCreate):
-    logging.info(">>> " + __name__ + ":insert_one")
+async def insert_license_owner(license: str, data: UserCreate):
+    logging.info(">>> " + __name__ + ":insert_license_owner")
     collection = get_collection(DOCUMENT_TYPE)
-    hashed_password = get_password_hash(data.password)
+    fpwd = create_fpwd(data.username)
+    hashed_password = get_password_hash(fpwd)
+    # hashed_password = get_password_hash(data.password)
     # model = UserInDB(**data.dict(), hashed_password=hashed_password)
-    model = UserToSave(**data.dict(), hashed_password=hashed_password)
+    model = UserSave(**data.dict(), license=license, hashed_password=hashed_password)
     model.licenseOwner = True
     model.roles.append("license-admin")
     model.roles.append("project-admin")
     props = fields_in_create(model)
+    props["xfpwd"] = fpwd[::-1]
     try:
         rs = await collection.insert_one(props)
         if rs.inserted_id:

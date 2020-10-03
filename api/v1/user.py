@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from crud import user as crud
 from crud.license import find_one as find_license
 from models.base import Msg
-from models.user import User, UserCreate, UserInfo, UserUpdate, UserUpdateSelf
+from models.user import User, UserCreate, UserUpdate, UserUpdateSelf
 from utils.utils import raise_bad_request, raise_not_found
 from api.v1.deps import get_current_active_user, get_current_license_owner
 
@@ -22,17 +22,18 @@ async def read_license_users(slug: str, limit: int=20, skip: int=0, current_user
 
 
 @router.post("", response_model=User)
-async def create_license_user(slug: str, data: UserInfo, current_user: User=Depends(get_current_active_user)):
+async def create_license_user(slug: str, data: UserCreate, current_user: User=Depends(get_current_active_user)):
     logging.info(">>> " + __name__ + ":create")
     slug = slug.strip().lower()
     # data.license = license
     logging.info(data)
-    model = UserCreate(**data.dict(), license=slug)
+    model = UserCreate(**data.dict())
+    # model.license = slug
     logging.info(model)
     user = await crud.find_by_email_or_username(data.email, data.username)
     if user:
         raise_bad_request("Username or email is already registered in the system.")
-    return await crud.insert_one(model, license_owner=False)
+    return await crud.insert_one(slug, model, license_owner=False)
 
 
 @router.get("/me", response_model=User)

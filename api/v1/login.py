@@ -42,6 +42,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username},
         expires_delta=access_token_expires
     )
+    logging.info(user)
     user_data = {
         "id": user.oid,
         "license": user.license,
@@ -86,4 +87,4 @@ async def recover_password(email: str) -> Any:
     emailutils.send_reset_password_email(
         email_to=user["email"], email=email, token=password_reset_token
     )
-    return {"msg": "Password recovery email sent"}
+    return {"message": "Password recovery email sent"}
