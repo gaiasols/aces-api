@@ -51,13 +51,12 @@ class UserInDB(User):
 
 # Properties to receive on create
 class UserCreate(BaseModel):
-    license: str
     name: str
     username: str
     email: EmailStr
     gender: str = None
     phone: str = None
-    password: str
+    # password: str
     roles: List[str] = []
 
     @validator('username')
@@ -71,12 +70,12 @@ class UserCreate(BaseModel):
     def check_email(cls, v):
         return v.strip().lower()
 
-    @validator('password')
-    def check_password(cls, v):
-        v = v.strip()
-        if not (PASSWORD_MIN_LENGTH <= len(v) <= PASSWORD_MAX_LENGTH):
-            raise ValueError(PASSWORD_ERROR_MESSAGE)
-        return v
+    # @validator('password')
+    # def check_password(cls, v):
+    #     v = v.strip()
+    #     if not (PASSWORD_MIN_LENGTH <= len(v) <= PASSWORD_MAX_LENGTH):
+    #         raise ValueError(PASSWORD_ERROR_MESSAGE)
+    #     return v
 
 
 # Properties to receive on user update by license

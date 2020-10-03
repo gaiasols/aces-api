@@ -49,14 +49,16 @@ async def insert_one(data: LicenseCreate):
         if rs.inserted_id:
             license = await collection.find_one({"_id": rs.inserted_id})
             # Create license owner
+            # fpwd = create_fpwd(data.contactUsername)
             owner = UserCreate(
-                license = data.slug,
+                # license = data.slug,
                 name = data.contactName,
                 username = data.contactUsername,
                 email = data.contactEmail,
-                password = NEW_LICENSE_PASSWORD
+                # password = NEW_LICENSE_PASSWORD
+                # password = fpwd
             )
-            user = await insert_license_owner(owner)
+            user = await insert_license_owner(data.slug, owner)
             return license
     except Exception as e:
         logging.info(e)

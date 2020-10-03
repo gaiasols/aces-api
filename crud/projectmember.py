@@ -13,6 +13,7 @@ from core.security import get_password_hash
 from db.mongo import get_collection
 from models.projectmember import Member, MemberBase, MemberCreate, MemberInDB
 from crud.utils import (
+    create_fpwd,
     delete_empty_keys,
     fields_in_create,
     fields_in_update,
@@ -78,13 +79,15 @@ async def delete_one(project: str, search: str):
 
 
 async def insert(project: str, data: MemberCreate):
-    hashed_password = get_password_hash(data.password)
+    fpwd = create_fpwd(data.username)
+    hashed_password = get_password_hash(fpwd)
     model = MemberInDB(
         **data.dict(),
         projectId=project,
         hashed_password=hashed_password
     )
     props = fields_in_create(model)
+    props["xfpwd"] = fpwd[::-1]
     try:
         collection = get_collection(DOCTYPE_PROJECT_MEMBER)
         rs = await collection.insert_one(props)

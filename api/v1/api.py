@@ -22,9 +22,9 @@ router = APIRouter()
 router.include_router(login, tags=["✅ Login"])
 # router.include_router(public_routes, prefix="/licenses/{license}", tags=["✅ Public"])
 
-router.include_router(admin_license, prefix="/admin/licenses", tags=["🅰️ Licenses"])
-router.include_router(admin_user, prefix="/admin/users", tags=["🅰️ Users"])
-router.include_router(admin_module, prefix="/admin/modules", tags=["🅰️ Modules"])
+# router.include_router(admin_license, prefix="/admin/licenses", tags=["🅰️ Licenses"])
+# router.include_router(admin_user, prefix="/admin/users", tags=["🅰️ Users"])
+# router.include_router(admin_module, prefix="/admin/modules", tags=["🅰️ Modules"])
 
 router.include_router(license_routes, prefix="/licenses/{slug}", tags=["✅ Tenant"])
 router.include_router(user_routes, prefix="/licenses/{slug}/users", tags=["✅ Tenant Users"])
@@ -35,4 +35,4 @@ router.include_router(project_routes, prefix="/licenses/{slug}/projects", tags=[
 router.include_router(module_routes, prefix="/projects/{project}/modules", tags=["✅ Project Modules"])
 router.include_router(member_routes, prefix="/projects/{project}/members", tags=["✅ Project Members"])
 router.include_router(persona_routes, prefix="/projects/{project}/personas", tags=["✅ Project Personas"])
-router.include_router(GPQ, prefix="/projects/{project}/gpq", tags=["✅ GPQ Records"])
+# router.include_router(GPQ, prefix="/projects/{project}/gpq", tags=["✅ GPQ Records"])

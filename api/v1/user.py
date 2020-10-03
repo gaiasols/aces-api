@@ -28,12 +28,12 @@ async def create_license_user(slug: str, data: UserCreate, current_user: User=De
     # data.license = license
     logging.info(data)
     model = UserCreate(**data.dict())
-    model.license = slug
+    # model.license = slug
     logging.info(model)
     user = await crud.find_by_email_or_username(data.email, data.username)
     if user:
         raise_bad_request("Username or email is already registered in the system.")
-    return await crud.insert_one(model, license_owner=False)
+    return await crud.insert_one(slug, model, license_owner=False)
 
 
 @router.get("/me", response_model=User)
