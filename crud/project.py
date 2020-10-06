@@ -65,8 +65,8 @@ async def insert(
         project = ProjectInDB(
             **data.dict(),
             license=license,
-            client=client,
-            contract=contract,
+            clientId=client,
+            contractId=contract,
             # admin=creator,
             createdBy=creator,
             modules=aces_modules,
